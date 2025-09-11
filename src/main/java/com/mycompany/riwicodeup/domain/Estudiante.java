@@ -4,44 +4,56 @@
  */
 package com.mycompany.riwicodeup.domain;
 
-import javax.swing.JOptionPane;
+import java.util.List;
 
 /**
  *
  * @author Coder
  */
 public class Estudiante {
-
+    private final String id;
     private String nombre;
     private int edad;
-    private double nota1, nota2, nota3;
+    private List<Nota> notas;
 
-    public Estudiante(String nombre, int edad, double nota1, double nota2, double nota3) {
+    public Estudiante(String id, String nombre, int edad, List<Nota> notas) {
+        this.id = id;
         this.nombre = nombre;
         this.edad = edad;
-        this.nota1 = nota1;
-        this.nota2 = nota2;
-        this.nota3 = nota3;
+        this.notas = notas;
     }
 
-    // Calcula el promedio de las tres notas
-    public double calcularPromedio() {
-        if (nota1 <= 0 && nota1 >= 5
-                && nota2 <= 0 && nota2 >= 5
-                && nota3 <= 0 && nota3 >= 5) {
-            JOptionPane.showMessageDialog(null, "Notas fuera de rango.", "Advertencia", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        
-            return (nota1 + nota2 + nota3) / 3.0;
-        }
-        // Devuelve la nota más alta
-    public double notaMaxima() {
-        return Math.max(nota1, Math.max(nota2, nota3));
+    public String getId() {
+        return id;
     }
 
-// Indica si el estudiante está aprobado (promedio >= 3.0)
-    public boolean estaAprobado() {
-        return calcularPromedio() >= 3.0;
+    public String getNombre() {
+        return nombre;
     }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public int getEdad() {
+        return edad;
+    }
+
+    public void setEdad(int edad) {
+        this.edad = edad;
+    }
+
+    public List<Nota> getNotas() {
+        return notas;
+    }
+
+    public void setNotas(List<Nota> notas) {
+        this.notas = notas;
+    }
+
+    @Override
+    public String toString() {
+        return "Estudiante{" + "id=" + id + ", nombre=" + nombre + ", edad=" + edad + ", notas=" + notas + '}';
+    }
+
 }
