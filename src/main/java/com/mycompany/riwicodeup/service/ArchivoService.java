@@ -1,4 +1,4 @@
-package com.mycompany.riwicodeup.domain.service;
+package com.mycompany.riwicodeup.service;
 
 import com.mycompany.riwicodeup.domain.Estudiante;
 import com.mycompany.riwicodeup.domain.Nota;
@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.table.TableModel;
 
@@ -31,23 +32,20 @@ public class ArchivoService {
             }
 
             try (PrintWriter pw = new PrintWriter(new FileWriter(archivo))) {
-                TableModel model = tabla.getModel();
+                List<Estudiante> estudiantes = RegistroEstudianteService.listarEstudiantes();
 
-                // Escribir encabezados
-                for (int i = 0; i < model.getColumnCount(); i++) {
-                    pw.print(model.getColumnName(i));
-                    if (i < model.getColumnCount() - 1) pw.print(",");
-                }
-                pw.println();
+                pw.println("Id, Nombre, Edad, Nota1, Nota2, Nota3");
+                for (Estudiante e : estudiantes) {
+                    String notasStr = e.getNotas().stream()
+                            .map(notas -> String.valueOf(notas.getValor()))
+                            .collect(Collectors.joining(","));
 
-                // Escribir filas
-                for (int row = 0; row < model.getRowCount(); row++) {
-                    for (int col = 0; col < model.getColumnCount(); col++) {
-                        Object value = model.getValueAt(row, col);
-                        pw.print(value != null ? value.toString() : "");
-                        if (col < model.getColumnCount() - 1) pw.print(",");
-                    }
-                    pw.println();
+                    pw.printf("%s,%s,%d,%s%n",
+                            e.getId(),
+                            e.getNombre(),
+                            e.getEdad(),
+                            notasStr
+                    );
                 }
 
                 pw.flush();
@@ -105,7 +103,7 @@ public class ArchivoService {
                 }
 
                 JOptionPane.showMessageDialog(parent, "Datos cargados correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException | NumberFormatException | IllegalArgumentException e) {
+            } catch (IOException | IllegalArgumentException e) {
                 JOptionPane.showMessageDialog(parent, "Error al cargar el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
