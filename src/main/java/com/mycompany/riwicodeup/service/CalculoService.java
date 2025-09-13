@@ -25,7 +25,7 @@ public class CalculoService {
         return promedio;
     }
     
-    public Nota notaMaxima(List<Nota> notas) {
+    public static Nota notaMaxima(List<Nota> notas) {
         return notas.stream()
             .max(Comparator.comparingDouble(Nota::getValor))
                 .orElse(null);

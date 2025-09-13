@@ -7,8 +7,11 @@ package com.mycompany.riwicodeup.ui;
 import com.mycompany.riwicodeup.domain.Estudiante;
 import com.mycompany.riwicodeup.domain.Nota;
 import com.mycompany.riwicodeup.service.ArchivoService;
+import com.mycompany.riwicodeup.service.CalculoService;
 import com.mycompany.riwicodeup.service.RegistroEstudianteService;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.swing.JOptionPane;
 
@@ -111,10 +114,20 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         btnEstadistica.setBackground(new java.awt.Color(204, 204, 204));
         btnEstadistica.setForeground(new java.awt.Color(0, 0, 0));
         btnEstadistica.setText("Estadistica");
+        btnEstadistica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEstadisticaActionPerformed(evt);
+            }
+        });
 
         btnCalcular.setBackground(new java.awt.Color(51, 153, 255));
         btnCalcular.setForeground(new java.awt.Color(0, 0, 0));
         btnCalcular.setText("Calcular");
+        btnCalcular.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCalcularActionPerformed(evt);
+            }
+        });
 
         btnSalir.setBackground(new java.awt.Color(153, 0, 0));
         btnSalir.setForeground(new java.awt.Color(255, 255, 255));
@@ -176,22 +189,20 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(88, 88, 88)
                         .addComponent(btnEstadistica)))
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnCargarCSV)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnGuardarCSV)
-                        .addGap(18, 18, 18))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .addGap(2, 2, 2))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel6)
-                        .addGap(164, 164, 164))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addGap(148, 148, 148))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCalcular, btnEstadistica, btnGuardar});
@@ -226,7 +237,7 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                         .addComponent(jLabel5)
                         .addGap(4, 4, 4)
                         .addComponent(txtNota3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 6, Short.MAX_VALUE))
+                        .addGap(0, 7, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(9, 9, 9)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -234,20 +245,18 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                             .addComponent(btnGuardarCSV))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel6)
+                .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnCalcular)
                             .addComponent(btnGuardar))
                         .addGap(18, 18, 18)
-                        .addComponent(btnEstadistica)))
-                .addContainerGap())
+                        .addComponent(btnEstadistica))
+                    .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
         );
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCalcular, btnCargarCSV, btnEstadistica, btnGuardar, btnGuardarCSV});
@@ -255,24 +264,41 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private List<Nota> obtenerNotasDesdeCampos() {
+        List<Nota> notas = new ArrayList<>();
+
+        try {
+            double valor1 = Double.parseDouble(txtNota1.getText());
+            double valor2 = Double.parseDouble(txtNota2.getText());
+            double valor3 = Double.parseDouble(txtNota3.getText());
+
+            notas.add(new Nota(valor1));
+            notas.add(new Nota(valor2));
+            notas.add(new Nota(valor3));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Todas las notas deben ser números válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return notas;
+    }
+
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // TODO add your handling code here:
         try {
             String nombre = txtNombre.getText();
             int edad = Integer.parseInt(txtEdad.getText());
-            double nota1 = Double.parseDouble(txtNota1.getText());
-            double nota2 = Double.parseDouble(txtNota2.getText());
-            double nota3 = Double.parseDouble(txtNota3.getText());
 
             if (nombre.isBlank()) {
                 throw new IllegalArgumentException("El nombre es obligatorio.");
             }
 
-            Nota n1 = new Nota(nota1);
-            Nota n2 = new Nota(nota2);
-            Nota n3 = new Nota(nota3);
+            if (edad <= 0) {
+                throw new IllegalArgumentException("La edad debe ser un numero positivo");
+            }
 
-            Estudiante estudiante = new Estudiante(UUID.randomUUID().toString(), nombre, edad, List.of(n1, n2, n3));
+            List<Nota> notas = obtenerNotasDesdeCampos();
+
+            Estudiante estudiante = new Estudiante(UUID.randomUUID().toString(), nombre, edad, notas);
             RegistroEstudianteService registroService = new RegistroEstudianteService();
             registroService.agregarEstudiante(estudiante);
             actualizarListaEstudiantes();
@@ -309,6 +335,59 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         ArchivoService.cargarCSV(this, reemplazar);
         actualizarListaEstudiantes();
     }//GEN-LAST:event_btnCargarCSVActionPerformed
+
+    private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
+        // TODO add your handling code here:
+        String nombre = txtNombre.getText();
+        int edad = Integer.parseInt(txtEdad.getText());
+        List<Nota> notas = obtenerNotasDesdeCampos();
+
+// Validación básica
+        if (nombre.isEmpty() || notas.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios.");
+            return;
+        }
+
+// Crear estudiante temporal
+        Estudiante estudiante = new Estudiante("TEMP", nombre, edad, notas);
+
+// Calcular
+        double promedio = CalculoService.promedio(estudiante.getNotas());
+        Nota notaMax = CalculoService.notaMaxima(estudiante.getNotas());
+        boolean aprobado = CalculoService.aprobado(promedio);
+
+// Mostrar resultados
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append(String.format("Promedio: %.2f", promedio));
+        sb.append("<br>Nota máxima: ").append(notaMax != null ? notaMax.getValor() : "N/A");
+        sb.append("<br>").append(aprobado ? "Estado: Aprobado" : "Estado: Reprobado");
+        sb.append("</html>");
+
+        lblEstadistica.setText(sb.toString());
+
+    }//GEN-LAST:event_btnCalcularActionPerformed
+
+    private void btnEstadisticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadisticaActionPerformed
+        // TODO add your handling code here:
+        RegistroEstudianteService servicio = new RegistroEstudianteService();
+
+        double promedioGeneral = servicio.calcularPromedioGeneral();
+        Optional<Estudiante> mejorEst = servicio.mejorEstudiante();
+        long aprobados = servicio.contarAprobados();
+        long reprobados = servicio.contarReprobados();
+
+        // Mostrar en la interfaz
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append(String.format("Promedio General: %.2f", promedioGeneral));
+        sb.append("<br>Aprobados: ").append(aprobados);
+        sb.append("<br>Reprobados: ").append(reprobados);
+        sb.append("<br>Mejor estudiante: ").append(mejorEst.isPresent() ? mejorEst.get().getNombre() : "N/A");
+        sb.append("</html>");
+
+        lblEstadistica.setText(sb.toString());
+    }//GEN-LAST:event_btnEstadisticaActionPerformed
 
     /**
      * @param args the command line arguments
