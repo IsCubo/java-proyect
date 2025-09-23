@@ -4,6 +4,8 @@
 
 package com.mycompany.riwicodeup;
 
+import com.mycompany.riwicodeup.ui.Login;
+
 /**
  *
  * @author Coder
@@ -11,6 +13,7 @@ package com.mycompany.riwicodeup;
 public class RiwiCodeUp {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        Login frame = new Login();
+        frame.setVisible(true);
     }
 }
