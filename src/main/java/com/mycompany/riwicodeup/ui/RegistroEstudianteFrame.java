@@ -4,6 +4,7 @@
  */
 package com.mycompany.riwicodeup.ui;
 
+import com.mycompany.riwicodeup.db.EstudianteDAO;
 import com.mycompany.riwicodeup.domain.Estudiante;
 import com.mycompany.riwicodeup.domain.Nota;
 import com.mycompany.riwicodeup.service.ArchivoService;
@@ -299,6 +300,8 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
             List<Nota> notas = obtenerNotasDesdeCampos();
 
             Estudiante estudiante = new Estudiante(UUID.randomUUID().toString(), nombre, edad, notas);
+            EstudianteDAO estudianteDAO = new EstudianteDAO();
+            estudianteDAO.guardar(estudiante);
             RegistroEstudianteService registroService = new RegistroEstudianteService();
             registroService.agregarEstudiante(estudiante);
             actualizarListaEstudiantes();
