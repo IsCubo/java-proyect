@@ -10,6 +10,7 @@ import com.mycompany.riwicodeup.domain.Nota;
 import com.mycompany.riwicodeup.service.ArchivoService;
 import com.mycompany.riwicodeup.service.CalculoService;
 import com.mycompany.riwicodeup.service.RegistroEstudianteService;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,22 +23,30 @@ import javax.swing.JOptionPane;
  */
 public class RegistroEstudianteFrame extends javax.swing.JFrame {
 
+    int filaSeleccionada;
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(RegistroEstudianteFrame.class.getName());
 
     /**
      * Creates new form RegistroEstudianteFrame
      */
-    public RegistroEstudianteFrame() {
+    public RegistroEstudianteFrame() throws SQLException {
         initComponents();
+        tableEstudiantes.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tableEstudiantes.getColumnModel().getColumn(0).setPreferredWidth(80);
+        for (int i = 2; i < tableEstudiantes.getColumnCount(); i++) {
+            tableEstudiantes.getColumnModel().getColumn(i).setPreferredWidth(80); // Otras más pequeñas
+        }
         setLocationRelativeTo(null);
         actualizarListaEstudiantes();
     }
 
-    private void actualizarListaEstudiantes() {
+    private void actualizarListaEstudiantes() throws SQLException {
         var modelo = (javax.swing.table.DefaultTableModel) tableEstudiantes.getModel();
         modelo.setRowCount(0); // Limpia la tabla
         for (var est : RegistroEstudianteService.listarEstudiantes()) {
             modelo.addRow(new Object[]{
+                est.getId(),
                 est.getNombre(),
                 est.getEdad(),
                 est.getNotas().get(0).getValor(),
@@ -76,6 +85,8 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         btnCargarCSV = new javax.swing.JButton();
         lblEstadistica = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        btnEliminar = new javax.swing.JButton();
+        btnActualizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -91,16 +102,22 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
 
         tableEstudiantes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Nombre", "Edad", "Nota 1", "Nota 2", "Nota 3"
+                "id", "Nombre", "Edad", "Nota 1", "Nota 2", "Nota 3"
             }
         ));
+        tableEstudiantes.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         tableEstudiantes.setShowGrid(true);
+        tableEstudiantes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableEstudiantesMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tableEstudiantes);
 
         btnGuardar.setBackground(new java.awt.Color(51, 153, 0));
@@ -121,7 +138,7 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
             }
         });
 
-        btnCalcular.setBackground(new java.awt.Color(51, 153, 255));
+        btnCalcular.setBackground(new java.awt.Color(153, 153, 0));
         btnCalcular.setForeground(new java.awt.Color(0, 0, 0));
         btnCalcular.setText("Calcular");
         btnCalcular.addActionListener(new java.awt.event.ActionListener() {
@@ -162,35 +179,60 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
 
         jLabel6.setText("Estadistica Estudiante");
 
+        btnEliminar.setBackground(new java.awt.Color(255, 0, 0));
+        btnEliminar.setForeground(new java.awt.Color(0, 0, 0));
+        btnEliminar.setText("Eliminar");
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
+
+        btnActualizar.setBackground(new java.awt.Color(0, 153, 255));
+        btnActualizar.setForeground(new java.awt.Color(0, 0, 0));
+        btnActualizar.setText("Actualizar");
+        btnActualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnSalir)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(54, 54, 54)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(txtNombre)
-                            .addComponent(jLabel5)
-                            .addComponent(txtNota2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel3)
-                            .addComponent(txtNota1)
-                            .addComponent(txtEdad, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(txtNota3)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
                         .addComponent(btnGuardar)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnCalcular))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnActualizar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEliminar)
+                        .addGap(12, 12, 12))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(88, 88, 88)
-                        .addComponent(btnEstadistica)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnSalir)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(43, 43, 43)
+                                .addComponent(btnCalcular)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnEstadistica))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(65, 65, 65)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(txtNombre)
+                                    .addComponent(jLabel5)
+                                    .addComponent(txtNota2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel3)
+                                    .addComponent(txtNota1)
+                                    .addComponent(txtEdad, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(txtNota3))))
+                        .addGap(53, 53, 53)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnCargarCSV)
@@ -203,14 +245,16 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCalcular, btnEstadistica, btnGuardar});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCalcular, btnEstadistica});
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnCargarCSV, btnGuardarCSV});
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {txtEdad, txtNombre, txtNota1, txtNota2, txtNota3});
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btnActualizar, btnEliminar, btnGuardar});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -238,7 +282,7 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                         .addComponent(jLabel5)
                         .addGap(4, 4, 4)
                         .addComponent(txtNota3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 7, Short.MAX_VALUE))
+                        .addGap(0, 5, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(9, 9, 9)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -250,17 +294,20 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addGap(4, 4, 4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnCalcular)
-                            .addComponent(btnGuardar))
-                        .addGap(18, 18, 18)
-                        .addComponent(btnEstadistica))
-                    .addComponent(lblEstadistica, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(14, 14, 14))
+                            .addComponent(btnGuardar)
+                            .addComponent(btnEliminar)
+                            .addComponent(btnActualizar))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnEstadistica)
+                            .addComponent(btnCalcular))))
+                .addGap(16, 16, 16))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnCalcular, btnCargarCSV, btnEstadistica, btnGuardar, btnGuardarCSV});
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnActualizar, btnCalcular, btnCargarCSV, btnEliminar, btnEstadistica, btnGuardar, btnGuardarCSV});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -300,8 +347,6 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
             List<Nota> notas = obtenerNotasDesdeCampos();
 
             Estudiante estudiante = new Estudiante(UUID.randomUUID().toString(), nombre, edad, notas);
-            EstudianteDAO estudianteDAO = new EstudianteDAO();
-            estudianteDAO.guardar(estudiante);
             RegistroEstudianteService registroService = new RegistroEstudianteService();
             registroService.agregarEstudiante(estudiante);
             actualizarListaEstudiantes();
@@ -326,8 +371,12 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSalirActionPerformed
 
     private void btnGuardarCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCSVActionPerformed
-        // TODO add your handling code here:
-        ArchivoService.guardarCSV(this, tableEstudiantes);
+        try {
+            // TODO add your handling code here:
+            ArchivoService.guardarCSV(this, tableEstudiantes);
+        } catch (SQLException ex) {
+            System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }//GEN-LAST:event_btnGuardarCSVActionPerformed
 
     private void btnCargarCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarCSVActionPerformed
@@ -336,7 +385,11 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         boolean reemplazar = (confirmacion == JOptionPane.YES_OPTION);
 
         ArchivoService.cargarCSV(this, reemplazar);
-        actualizarListaEstudiantes();
+        try {
+            actualizarListaEstudiantes();
+        } catch (SQLException ex) {
+            System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
     }//GEN-LAST:event_btnCargarCSVActionPerformed
 
     private void btnCalcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCalcularActionPerformed
@@ -375,22 +428,70 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         RegistroEstudianteService servicio = new RegistroEstudianteService();
 
-        double promedioGeneral = servicio.calcularPromedioGeneral();
-        Optional<Estudiante> mejorEst = servicio.mejorEstudiante();
-        long aprobados = servicio.contarAprobados();
-        long reprobados = servicio.contarReprobados();
+        try {
+            double promedioGeneral = servicio.calcularPromedioGeneral();
+            Optional<Estudiante> mejorEst = servicio.mejorEstudiante();
+            long aprobados = servicio.contarAprobados();
+            long reprobados = servicio.contarReprobados();
+            // Mostrar en la interfaz
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html>");
+            sb.append(String.format("Promedio General: %.2f", promedioGeneral));
+            sb.append("<br>Aprobados: ").append(aprobados);
+            sb.append("<br>Reprobados: ").append(reprobados);
+            sb.append("<br>Mejor estudiante: ").append(mejorEst.isPresent() ? mejorEst.get().getNombre() : "N/A");
+            sb.append("</html>");
 
-        // Mostrar en la interfaz
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html>");
-        sb.append(String.format("Promedio General: %.2f", promedioGeneral));
-        sb.append("<br>Aprobados: ").append(aprobados);
-        sb.append("<br>Reprobados: ").append(reprobados);
-        sb.append("<br>Mejor estudiante: ").append(mejorEst.isPresent() ? mejorEst.get().getNombre() : "N/A");
-        sb.append("</html>");
+            lblEstadistica.setText(sb.toString());
+        } catch (SQLException ex) {
+            System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
 
-        lblEstadistica.setText(sb.toString());
     }//GEN-LAST:event_btnEstadisticaActionPerformed
+
+    private void tableEstudiantesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEstudiantesMouseClicked
+        // TODO add your handling code here:
+        filaSeleccionada = tableEstudiantes.rowAtPoint(evt.getPoint());
+        txtNombre.setText(String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 1)));
+        txtEdad.setText(String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 2)));
+        txtNota1.setText(String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 3)));
+        txtNota2.setText(String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 4)));
+        txtNota3.setText(String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 5)));
+    }//GEN-LAST:event_tableEstudiantesMouseClicked
+
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        // TODO add your handling code here:
+        int id = Integer.parseInt((String) tableEstudiantes.getValueAt(filaSeleccionada, 0));
+        int opcion = JOptionPane.showConfirmDialog(rootPane, "Desea eliminar este estudiante?", "Eliminar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            try {
+                RegistroEstudianteService.eliminarEstudiante(id);
+                actualizarListaEstudiantes();
+            } catch (SQLException ex) {
+                System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        }
+    }//GEN-LAST:event_btnEliminarActionPerformed
+
+    private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
+        // TODO add your handling code here:
+        int opcion = JOptionPane.showConfirmDialog(rootPane, "Deseas actualizar usuario?", "Actualizar", JOptionPane.YES_NO_OPTION);
+
+        if (opcion == JOptionPane.YES_OPTION) {
+            String id = String.valueOf(tableEstudiantes.getValueAt(filaSeleccionada, 0));
+            String nombre = txtNombre.getText();
+            int edad = Integer.parseInt(txtEdad.getText());
+            List<Nota> notas = obtenerNotasDesdeCampos();
+            Estudiante estudiante = new Estudiante(id, nombre, edad, notas);
+            try {
+                RegistroEstudianteService.actualizarEstudiante(estudiante);
+                actualizarListaEstudiantes();
+            } catch (SQLException ex) {
+                System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        }
+    }//GEN-LAST:event_btnActualizarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -414,13 +515,21 @@ public class RegistroEstudianteFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new RegistroEstudianteFrame().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                new RegistroEstudianteFrame().setVisible(true);
+            } catch (SQLException ex) {
+                System.getLogger(RegistroEstudianteFrame.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
     }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnActualizar;
     private javax.swing.JButton btnCalcular;
     private javax.swing.JButton btnCargarCSV;
+    private javax.swing.JButton btnEliminar;
     private javax.swing.JButton btnEstadistica;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnGuardarCSV;

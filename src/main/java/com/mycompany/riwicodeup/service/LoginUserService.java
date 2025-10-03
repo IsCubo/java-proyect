@@ -4,7 +4,9 @@
  */
 package com.mycompany.riwicodeup.service;
 
+import com.mycompany.riwicodeup.db.UsuarioDao;
 import com.mycompany.riwicodeup.domain.User;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,23 +19,11 @@ public class LoginUserService {
 
     private static final List<User> users = new ArrayList<>();
 
-    public static void AddUserDefault() {
-        boolean exists = users.stream()
-                .anyMatch(u -> u.getUsername().equals("admin"));
-        if (!exists) {
-            User newUser = new User(UUID.randomUUID().toString(), "admin", "admin123");
-            users.add(newUser);
-        }
-    }
-
-    public static List<User> ListUsers() {
-        return users;
-    }
-
-    public static boolean AuthLogin(String username, String password) {
-        AddUserDefault();
-        return users.stream()
-                .anyMatch(u -> u.getUsername().equals(username) && u.getPassword().equals(password));
+    public static boolean AuthLogin(String username, String password) throws SQLException {
+        /*return users.stream()
+        .anyMatch(u -> u.getUsername().equals(username) && u.getPassword().equals(password));*/
+        User u = new User(UUID.randomUUID().toString(),username, password);
+        return UsuarioDao.login(u);
     }
     
 }

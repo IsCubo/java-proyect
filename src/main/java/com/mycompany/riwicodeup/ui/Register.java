@@ -6,6 +6,7 @@ package com.mycompany.riwicodeup.ui;
 
 import com.mycompany.riwicodeup.domain.User;
 import com.mycompany.riwicodeup.service.RegisterUserService;
+import java.sql.SQLException;
 import java.util.UUID;
 import javax.swing.JOptionPane;
 
@@ -181,20 +182,23 @@ public class Register extends javax.swing.JFrame {
             return;
         }
         
-        String passwordStr = password.toString();
+        String passwordStr = String.valueOf(password);
+        System.out.println(passwordStr);
         
-        User user = new User(UUID.randomUUID().toString(), username, passwordStr);
-        RegisterUserService registroUser = new RegisterUserService();
-        if(registroUser.Register(user)){
-            JOptionPane.showMessageDialog(this, "Registrado Correctamente");
-            RegistroEstudianteFrame frame = new RegistroEstudianteFrame();
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            this.dispose();
-            return;
-        }else{
-            JOptionPane.showMessageDialog(this, "El usuario ya existe");
-            return;
+        try {
+            if(RegisterUserService.Register(username, passwordStr)){
+                JOptionPane.showMessageDialog(this, "Registrado Correctamente");
+                RegistroEstudianteFrame frame = new RegistroEstudianteFrame();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+                this.dispose();
+                return;
+            }else{
+                JOptionPane.showMessageDialog(this, "El usuario ya existe");
+                return;
+            }
+        } catch (SQLException ex) {
+            System.getLogger(Register.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }//GEN-LAST:event_btnSignUpActionPerformed
 

@@ -6,8 +6,8 @@ package com.mycompany.riwicodeup.ui;
 
 import com.mycompany.riwicodeup.service.LoginUserService;
 import java.awt.Color;
+import java.sql.SQLException;
 import java.util.Arrays;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -150,12 +150,17 @@ public class Login extends javax.swing.JFrame {
             return;
         }
         
-        if(LoginUserService.AuthLogin(username, password)){
-            var frame = new RegistroEstudianteFrame();
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            this.dispose();
+        try {
+            if(LoginUserService.AuthLogin(username, password)){
+                var frame = new RegistroEstudianteFrame();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+                this.dispose();
+            }
+        } catch (SQLException ex) {
+            System.getLogger(Login.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
+        
         lblMessage.setForeground(Color.red);
         lblMessage.setText("Credenciales incorrectas");
         txtPassword.setText("");

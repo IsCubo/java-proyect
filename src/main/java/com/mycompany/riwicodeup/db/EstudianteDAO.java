@@ -1,4 +1,4 @@
-/*
+    /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class EstudianteDAO {
     
-    public void guardar(Estudiante e) throws SQLException{
+    public static void guardar(Estudiante e) throws SQLException{
         
         String sql = "INSERT INTO estudiante (nombre, edad, nota1, nota2, nota3) VALUES (?,?,?,?,?)";
         
@@ -34,7 +34,7 @@ public class EstudianteDAO {
         }
     }
 
-    public List<Estudiante> listar() throws SQLException{
+    public static List<Estudiante> listar() throws SQLException{
         List<Estudiante> estudiantes = new ArrayList<>();
         String sql = "SELECT * FROM estudiante";
         
@@ -54,4 +54,30 @@ public class EstudianteDAO {
         }
         return estudiantes;
     }
+    
+    public static void eliminar(int id) throws SQLException{
+        String sql = "DELETE FROM estudiante WHERE id = ?";
+        try(Connection conn = ConexionDB.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
+    
+    public static void actualizar(Estudiante e) throws SQLException{
+        String sql = "UPDATE estudiante SET nombre = ?, edad = ?, nota1 = ?, nota2 = ?, nota3 = ? WHERE id = ?";
+        try(Connection conn = ConexionDB.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, e.getNombre());
+            ps.setInt(2, e.getEdad());
+            ps.setDouble(3, e.getNotas().get(0).getValor());
+            ps.setDouble(4, e.getNotas().get(1).getValor());
+            ps.setDouble(5, e.getNotas().get(2).getValor());
+            ps.setString(6, e.getId());
+            
+            ps.executeUpdate();
+        }
+    }
+    
+    
 }

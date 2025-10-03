@@ -4,8 +4,11 @@
  */
 package com.mycompany.riwicodeup.service;
 
+import com.mycompany.riwicodeup.db.UsuarioDao;
 import com.mycompany.riwicodeup.domain.User;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -13,20 +16,8 @@ import java.util.List;
  */
 public class RegisterUserService {
 
-    private List<User> listUser = LoginUserService.ListUsers();
-
-    public RegisterUserService() {
+    public static boolean Register(String username, String password) throws SQLException {
+        User u = new User(UUID.randomUUID().toString(), username, password);
+        return UsuarioDao.register(u);
     }
-
-    public boolean Register(User e) {
-        if (listUser.stream()
-                .anyMatch(u -> u.getUsername().equals(e.getUsername()))) {
-            return false;
-        }
-
-        listUser.add(e);
-
-        return true;
-    }
-
 }

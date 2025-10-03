@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +19,7 @@ import javax.swing.table.TableModel;
 
 public class ArchivoService {
 
-    public static void guardarCSV(Component parent, JTable tabla) {
+    public static void guardarCSV(Component parent, JTable tabla) throws SQLException {
         JFileChooser archivoCsv = new JFileChooser();
         archivoCsv.setDialogTitle("Guardar archivo como CSV");
         int selection = archivoCsv.showSaveDialog(parent);
